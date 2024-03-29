@@ -1,4 +1,6 @@
 import ASTHelper from "./ast-helper";
+import * as acorn from "acorn";
+import escodegen from "escodegen";
 
 export default class Minifier {
   #nameMap = new Map();
@@ -56,5 +58,30 @@ export default class Minifier {
         node.name = name;
       })
       .traverse(node);
+  }
+
+  minifyCodeAndReturnMapNames(originalCode) {
+    const originalAST = acorn.parse(originalCode, {
+      ecmaVersion: 2022,
+      locations: true,
+    });
+
+    console.log({ originalAST });
+    this.#traverse(originalAST);
+
+    const minifiedCode = escodegen.generate(originalAST, {
+      format: { compact: true },
+    });
+    console.log({ minifiedCode });
+
+    console.log({
+      nameMap: this.#nameMap,
+      alphabet: this.#alphabet,
+    });
+
+    return {
+      minifiedCode,
+      nameMap: this.#nameMap,
+    };
   }
 }

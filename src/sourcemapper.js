@@ -48,4 +48,31 @@ export default class SourceMapper {
       })
       .traverse(node);
   }
+
+  #generateSourceMapData({ nameMap, originalCode }) {
+    const originalItems = [...nameMap.values()];
+
+    this.#sourceMaps.setSourceContent(
+      this.#minifiedLocalFilePath,
+      originalCode,
+    );
+
+    originalItems.forEach(({ newName, positions }) => {
+      const minifiedPositions = this.#minifiedItems.get(newName).positions;
+
+      minifiedPositions.shift();
+      minifiedPositions.forEach((minifiedPosition, index) => {
+        const originalPositions = positions[index];
+
+        const mappings = {
+          source: this.#minifiedLocalFilePath,
+          original: originalPositions,
+          generated: minifiedPosition,
+          name: newName,
+        };
+
+        this.#sourceMaps.addMapping(mappings);
+      });
+    });
+  }
 }

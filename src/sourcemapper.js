@@ -83,14 +83,14 @@ export default class SourceMapper {
       locations: true,
     });
 
-    console.log({ minifiedAST });
+    //    console.log({ minifiedAST });
 
     this.#traverse(minifiedAST);
     this.#generateSourceMapData({ nameMap, originalCode });
 
     const sourceMap = this.#sourceMaps.toString();
 
-    console.log({ sourceMap });
+    //    console.log({ sourceMap });
 
     return sourceMap;
   }

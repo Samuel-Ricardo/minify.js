@@ -66,19 +66,19 @@ export default class Minifier {
       locations: true,
     });
 
-    console.log({ originalAST });
+    //    console.log({ originalAST });
     this.#traverse(originalAST);
 
     const minifiedCode = escodegen.generate(originalAST, {
       format: { compact: true },
     });
-    console.log({ minifiedCode });
+    //    console.log({ minifiedCode });
 
-    console.log({
+    /*    console.log({
       nameMap: this.#nameMap,
       alphabet: this.#alphabet,
     });
-
+*/
     return {
       minifiedCode,
       nameMap: this.#nameMap,

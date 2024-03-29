@@ -78,12 +78,20 @@ export default class SourceMapper {
   }
 
   generateSourceMap({ originalCode, minifiedCOde, nameMap }) {
-    const minifiedAST = acorn.parse(minifiedCOde, { ecmaVersion: 2024 }, locations: true);
-    
-    this.#traverse(minifiedAST)
-    this.#generateSourceMapData({nameMap, originalCode});
+    const minifiedAST = acorn.parse(minifiedCOde, {
+      ecmaVersion: 2024,
+      locations: true,
+    });
+
+    console.log({ minifiedAST });
+
+    this.#traverse(minifiedAST);
+    this.#generateSourceMapData({ nameMap, originalCode });
 
     const sourceMap = this.#sourceMaps.toString();
+
+    console.log({ sourceMap });
+
     return sourceMap;
   }
 }

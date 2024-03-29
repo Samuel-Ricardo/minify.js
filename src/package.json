@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Samuel-Ricardo/minify.js#readme",
   "dependencies": {
-    "acorn": "^8.11.3"
+    "acorn": "^8.11.3",
+    "escodegen": "^2.1.0"
   }
 }

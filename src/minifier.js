@@ -10,4 +10,16 @@ export default class Minifier {
 
     return this.#alphabet.shift();
   }
+
+  #updateNameMap(oldName, newName, { loc: { start } }) {
+    if (this.#nameMap.has(oldName)) {
+      const nameMap = this.#nameMap.get(oldName);
+      nameMap.positions.push(start);
+
+      this.#nameMap.set(oldName, nameMap);
+      return;
+    }
+
+    this.#nameMap.set(oldName, { newName, positions: [start] });
+  }
 }

@@ -22,4 +22,12 @@ export default class Minifier {
 
     this.#nameMap.set(oldName, { newName, positions: [start] });
   }
+
+  #handleDeclaration(declaration) {
+    const oldName = declaration.name;
+    const newName = this.#generateNameIfNotExisting(oldName);
+
+    this.#updateNameMap(oldName, newName, declaration);
+    declaration.name = newName;
+  }
 }

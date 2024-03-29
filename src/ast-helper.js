@@ -7,12 +7,10 @@ export default class ASTHelper {
     this.#variableDeclarationHook = fn;
     return this;
   }
-
-  setFuncionDeclarationHook(fn) {
+  setFunctionDeclarationHook(fn) {
     this.#functionDeclarationHook = fn;
     return this;
   }
-
   setIdentifierHook(fn) {
     this.#identifierHook = fn;
     return this;
@@ -22,11 +20,10 @@ export default class ASTHelper {
     const handlers = {
       FunctionDeclaration: this.#functionDeclarationHook,
       VariableDeclaration: this.#variableDeclarationHook,
+      // where the refence is being used
       Identifier: this.#identifierHook,
     };
-
     handlers[node?.type]?.(node);
-
     for (const key in node) {
       if (typeof node[key] !== "object") continue;
       this.traverse(node[key]);

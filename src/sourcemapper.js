@@ -1,39 +1,34 @@
 import { SourceMapGenerator } from "source-map";
-import ASTHelper from "./ast-helper";
 import * as acorn from "acorn";
+import escodegen from "escodegen";
+import ASTHelper from "./ast-helper.js";
 
 export default class SourceMapper {
   #minifiedLocalFilePath;
   #sourceMaps;
   #minifiedItems = new Map();
-
   constructor({ minifiedLocalFilePath }) {
     this.#minifiedLocalFilePath = minifiedLocalFilePath;
     this.#sourceMaps = new SourceMapGenerator({ file: minifiedLocalFilePath });
   }
-
   #handleDeclaration({ loc: { start }, name }) {
     if (this.#minifiedItems.has(name)) {
       const nameMap = this.#minifiedItems.get(name);
       nameMap.positions.push(start);
-
       this.#minifiedItems.set(name, nameMap);
       return;
     }
-
     this.#minifiedItems.set(name, { positions: [start] });
   }
-
   #traverse(node) {
-    const helper = new ASTHelper();
-
-    helper
+    const astHelper = new ASTHelper();
+    astHelper
       .setVariableDeclarationHook((node) => {
         for (const declaration of node.declarations) {
-          this.#handleDeclaration(declaration);
+          this.#handleDeclaration(declaration.id);
         }
       })
-      .setFuncionDeclarationHook((node) => {
+      .setFunctionDeclarationHook((node) => {
         this.#handleDeclaration(node.id);
         for (const param of node.params) {
           this.#handleDeclaration(param);
@@ -49,18 +44,16 @@ export default class SourceMapper {
       })
       .traverse(node);
   }
-
   #generateSourceMapData({ nameMap, originalCode }) {
     const originalItems = [...nameMap.values()];
-
     this.#sourceMaps.setSourceContent(
       this.#minifiedLocalFilePath,
       originalCode,
     );
-
     originalItems.forEach(({ newName, positions }) => {
       const minifiedPositions = this.#minifiedItems.get(newName).positions;
 
+      // remove the first line of each position is replicated
       minifiedPositions.shift();
       minifiedPositions.forEach((minifiedPosition, index) => {
         const originalPositions = positions[index];
@@ -71,26 +64,18 @@ export default class SourceMapper {
           generated: minifiedPosition,
           name: newName,
         };
-
         this.#sourceMaps.addMapping(mappings);
       });
     });
   }
-
   generateSourceMap({ originalCode, minifiedCode, nameMap }) {
     const minifiedAST = acorn.parse(minifiedCode, {
-      ecmaVersion: 2024,
+      ecmaVersion: 2022,
       locations: true,
     });
-
-    //    console.log({ minifiedAST });
-
     this.#traverse(minifiedAST);
     this.#generateSourceMapData({ nameMap, originalCode });
-
     const sourceMap = this.#sourceMaps.toString();
-
-    //    console.log({ sourceMap });
 
     return sourceMap;
   }

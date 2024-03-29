@@ -1,10 +1,14 @@
 {
   "name": "minify.js",
+  "type": "module",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rm -rf **/index.min*",
+    "minifify": "node index.js public/index.js",
+    "minifify-and-run": "npm run minifify && npm start",
+    "start": "node public/index.min.js"
   },
   "repository": {
     "type": "git",

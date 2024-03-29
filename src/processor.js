@@ -1,13 +1,11 @@
-import { SourceTextModule } from "node:vm";
-import Minifier from "./minifier";
 import fs from "node:fs";
 import { basename } from "node:path";
-
+import Minifier from "./minifier.js";
+import SourceMapper from "./sourcemapper.js";
 export default class Processor {
   static generateMinifiedFilePath(filename) {
     return filename.replace(".js", ".min.js");
   }
-
   static #generateMinifiedCode({
     originalCode,
     minifiedFilePath,
@@ -16,17 +14,13 @@ export default class Processor {
     const minifier = new Minifier();
     const { minifiedCode, nameMap } =
       minifier.minifyCodeAndReturnMapNames(originalCode);
-
     const sourceMapURL = `//# sourceMappingURL=${minifiedLocalFilePath}.map`;
-
-    fs.writeFileSync(minifiedFilePath, `${minifiedFilePath}\n${sourceMapURL}`);
-
+    fs.writeFileSync(minifiedFilePath, `${minifiedCode}\n${sourceMapURL}`);
     return {
       minifiedCode,
       nameMap,
     };
   }
-
   static #generateSourceMap({
     originalCode,
     minifiedCode,
@@ -34,24 +28,15 @@ export default class Processor {
     minifiedLocalFilePath,
     minifiedFilePath,
   }) {
-    const sourceMapper = new SourceTextModule({ minifiedFilePath });
+    const sourceMapper = new SourceMapper({ minifiedLocalFilePath });
     const sourceMapsContent = sourceMapper.generateSourceMap({
       originalCode,
       minifiedCode,
       nameMap,
     });
-
     const sourceMapFilePath = `${minifiedFilePath}.map`;
     fs.writeFileSync(sourceMapFilePath, sourceMapsContent);
-
-    console.log({
-      minifiedLocalFilePath,
-      minifiedFilePath,
-      sourceMapFilePath,
-      sourceMapsContent,
-    });
   }
-
   static run(filename) {
     const originalCode = fs.readFileSync(filename, "utf8");
     const minifiedFilePath = this.generateMinifiedFilePath(filename);
@@ -61,21 +46,12 @@ export default class Processor {
       minifiedFilePath,
       minifiedLocalFilePath,
     });
-
     this.#generateSourceMap({
       originalCode,
       minifiedCode,
       nameMap,
-      minifiedLocalFilePath,
       minifiedFilePath,
-    });
-
-    console.log({
-      originalCode,
-      minifiedCode,
-      nameMap,
       minifiedLocalFilePath,
-      minifiedFilePath,
     });
 
     console.log(

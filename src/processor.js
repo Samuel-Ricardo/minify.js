@@ -1,3 +1,4 @@
+import { SourceTextModule } from "node:vm";
 import Minifier from "./minifier";
 import fs from "node:fs";
 
@@ -23,5 +24,23 @@ export default class Processor {
       minifiedCode,
       nameMap,
     };
+  }
+
+  static #generateSourceMap({
+    originalCode,
+    minifiedCode,
+    nameMap,
+    minifiedLocalFilePath,
+    minifiedFilePath,
+  }) {
+    const sourceMapper = new SourceTextModule({ minifiedFilePath });
+    const sourceMapsContent = sourceMapper.generateSourceMap({
+      originalCode,
+      minifiedCode,
+      nameMap,
+    });
+
+    const sourceMapFilePath = `${minifiedFilePath}.map`;
+    fs.writeFileSync(sourceMapFilePath, sourceMapsContent);
   }
 }

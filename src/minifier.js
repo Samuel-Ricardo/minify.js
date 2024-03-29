@@ -62,7 +62,7 @@ export default class Minifier {
 
   minifyCodeAndReturnMapNames(originalCode) {
     const originalAST = acorn.parse(originalCode, {
-      ecmaVersion: 2022,
+      ecmaVersion: 2024,
       locations: true,
     });
 

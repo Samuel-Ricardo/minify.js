@@ -1,5 +1,6 @@
 import { SourceMapGenerator } from "source-map";
 import ASTHelper from "./ast-helper";
+import * as acorn from "acorn";
 
 export default class SourceMapper {
   #minifiedLocalFilePath;
@@ -74,5 +75,15 @@ export default class SourceMapper {
         this.#sourceMaps.addMapping(mappings);
       });
     });
+  }
+
+  generateSourceMap({ originalCode, minifiedCOde, nameMap }) {
+    const minifiedAST = acorn.parse(minifiedCOde, { ecmaVersion: 2024 }, locations: true);
+    
+    this.#traverse(minifiedAST)
+    this.#generateSourceMapData({nameMap, originalCode});
+
+    const sourceMap = this.#sourceMaps.toString();
+    return sourceMap;
   }
 }

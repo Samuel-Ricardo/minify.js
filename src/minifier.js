@@ -1,3 +1,5 @@
+import ASTHelper from "./ast-helper";
+
 export default class Minifier {
   #nameMap = new Map();
   #alphabet = Array.from("abcdefghijklmnopqrstuvwxyz");
@@ -29,5 +31,30 @@ export default class Minifier {
 
     this.#updateNameMap(oldName, newName, declaration);
     declaration.name = newName;
+  }
+
+  #traverse(node) {
+    const helper = new ASTHelper();
+    helper
+      .setVariableDeclarationHook((node) => {
+        for (const declaration of node.declarations) {
+          this.#handleDeclaration(node.id);
+        }
+      })
+      .setFuncionDeclarationHook((node) => {
+        this.#handleDeclaration(node.id);
+        for (const param of node.params) {
+          this.#handleDeclaration(param);
+        }
+      })
+      .setIdentifierHook((node) => {
+        const oldName = node.name;
+        const name = this.#nameMap.get(oldName)?.newName;
+        if (!name) return;
+
+        this.#updateNameMap(oldName, name, node);
+        node.name = name;
+      })
+      .traverse(node);
   }
 }

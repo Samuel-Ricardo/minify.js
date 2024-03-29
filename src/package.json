@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Samuel-Ricardo/minify.js/issues"
   },
-  "homepage": "https://github.com/Samuel-Ricardo/minify.js#readme"
+  "homepage": "https://github.com/Samuel-Ricardo/minify.js#readme",
+  "dependencies": {
+    "acorn": "^8.11.3"
+  }
 }
